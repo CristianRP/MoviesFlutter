@@ -63,4 +63,11 @@ class Movie {
     overview          = movieJson['overview'];
     releaseDate       = movieJson['release_date'];
   }
+
+  getPosterImg() {
+    if (posterPath == null)
+      return 'https://www.heres.ee/pub/media/catalog/product/placeholder/default/white-image_1.png';
+    else
+      return Uri.https('image.tmdb.org', 't/p/w500/$posterPath').toString();//image.tmdb.org/t/p/w500/$posterPath';
+  }
 }
