@@ -10,10 +10,7 @@ class MoviesProvider {
   String _language = 'es-GT';
 
   Future<List<Movie>> getOnTheaters() async {
-    final url = Uri.https(_url, '3/movie/now_playing', {
-      'api_key'  : _apiKey,
-      'language' : _language
-    });
+    final url = _buildUrl('3/movie/now_playing');
 
     final response = await http.get(url);
     final decodedData = json.decode(response.body);
@@ -23,5 +20,20 @@ class MoviesProvider {
     //print(movies.items[1].title);
 
     return movies.items;
+  }
+
+  Future<List<Movie>> getPopular() async {
+    final url = _buildUrl('3/movie/popular');
+    final response = await http.get(url);
+    final decodedData = json.decode(response.body);
+    final movies = Movies.fromJsonList(decodedData['results']);
+    return movies.items;
+  }
+
+  Uri _buildUrl(String endPoint) {
+    return Uri.https(_url, endPoint, {
+      'api_key'  : _apiKey,
+      'language' : _language
+    });
   }
 }
