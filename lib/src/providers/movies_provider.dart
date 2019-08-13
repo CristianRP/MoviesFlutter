@@ -11,19 +11,15 @@ class MoviesProvider {
 
   Future<List<Movie>> getOnTheaters() async {
     final url = _buildUrl('3/movie/now_playing');
-
-    final response = await http.get(url);
-    final decodedData = json.decode(response.body);
-
-    final movies = Movies.fromJsonList(decodedData['results']);
-
-    //print(movies.items[1].title);
-
-    return movies.items;
+    return await _processResponse(url);
   }
 
   Future<List<Movie>> getPopular() async {
     final url = _buildUrl('3/movie/popular');
+    return await _processResponse(url);
+  }
+
+  Future<List<Movie>> _processResponse(Uri url) async {
     final response = await http.get(url);
     final decodedData = json.decode(response.body);
     final movies = Movies.fromJsonList(decodedData['results']);
