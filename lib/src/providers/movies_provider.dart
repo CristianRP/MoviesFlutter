@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -9,14 +10,31 @@ class MoviesProvider {
   String _url      = 'api.themoviedb.org';
   String _language = 'es-GT';
 
+  int _popularPage = 0;
+  List<Movie> _popular = List();
+
+  final _popularStreamController = StreamController<List<Movie>>.broadcast();
+
+  Function(List<Movie>) get popularSink => _popularStreamController.sink.add;
+
+  Stream<List<Movie>> get popularStream => _popularStreamController.stream;
+
+  void disposeStreams() {
+    _popularStreamController?.close();
+  }
+
   Future<List<Movie>> getOnTheaters() async {
     final url = _buildUrl('3/movie/now_playing');
     return await _processResponse(url);
   }
 
   Future<List<Movie>> getPopular() async {
+    _popularPage++;
     final url = _buildUrl('3/movie/popular');
-    return await _processResponse(url);
+    final response = await _processResponse(url);
+    _popular.addAll(response);
+    popularSink(_popular);
+    return response;
   }
 
   Future<List<Movie>> _processResponse(Uri url) async {
@@ -29,7 +47,8 @@ class MoviesProvider {
   Uri _buildUrl(String endPoint) {
     return Uri.https(_url, endPoint, {
       'api_key'  : _apiKey,
-      'language' : _language
+      'language' : _language,
+      'page'     : _popularPage == 0 ? '1' : _popularPage.toString()
     });
   }
 }
